@@ -17,9 +17,9 @@ using UnityEngine.XR.Interaction.Toolkit;
     2. Active버튼이 놓아졌을때 화살이 발사함과 동시에 해당 화살의 움직임 또한 제한 풀기.
     3. 화살이 날아갈 방향은 활 Grab한 컨트롤러의 Forward 방향으로 날리도록 하기. 
 
-    4. (추가?)화살의 궤적이 나타나게 해서 궤적을 보여준다. or 화살의 탄착지점을 보여준다.
-
-
+    // 추가사항
+    4. 화살의 궤적이 나타나게 해서 궤적을 보여준다. or 화살의 탄착지점을 보여준다.
+    5. 화살의 발사시 중력을 적용하여 포물선으로 움직이게 조정.
 
 */
 
@@ -94,9 +94,15 @@ public class BowController : MonoBehaviour
 
     private void CheckActiveButton()
     {
+        // 활을 잡고 있는 컨트롤러 반환
+        var grabbingController = bowHandle.interactorsSelecting[0] as XRBaseControllerInteractor;
+        Debug.Log($"grabbingController {grabbingController}");
+
         // 왼손으로 활을 잡고
         // 오른손의 Active 버튼이 눌렸다면 활시위를 움직임
-        if (pullingController == null && rightController.activateInteractionState.active)
+        if (pullingController == null 
+            && grabbingController.xrController == leftController 
+            && rightController.activateInteractionState.active)
         {
             Debug.Log("오른손의 Active 버튼 눌림, 활시위를 오른손으로 조정");
             pullingController = rightController;
@@ -104,7 +110,9 @@ public class BowController : MonoBehaviour
         }
         // 오른손으로 활을 잡고,
         // 왼손의 Active 버튼이 눌렸다면 활시위를 움직임
-        else if (pullingController == null && leftController.activateInteractionState.active)
+        else if (pullingController == null 
+            && grabbingController.xrController == rightController
+            && leftController.activateInteractionState.active)
         {
             Debug.Log("왼손의 Active 버튼 눌림, 활시위를 왼손으로 조정");
             pullingController = leftController;
