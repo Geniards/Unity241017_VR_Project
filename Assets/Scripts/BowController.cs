@@ -1,12 +1,27 @@
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
+/*
+    [활 시위 이동 단계 / 양쪽]
+    0. 활에 Grab Interactable을 추가.
+    1. 왼손이던지 오른손이던지 Direct Interactor를 이용하여 Select버튼으로 활의 몸통을 Grab한다.
+    2. Select버튼이 눌러진 상태의 Grab의 반대 컨트롤러의 Active버튼이 눌러진다면
+       활시위의 WB.StringCenter transform이 해당 컨트롤러로 움직일 수 있게 된다..
+    3. 이때 Active가 눌러진 컨트롤러가 움직이면 활시위가 움직인다.
 
-// [활 시위 이동 단계 / 양쪽]
-// 0. 활에 Grab Interactable을 추가.
-// 1. 왼손이던지 오른손이던지 Direct Interactor를 이용하여 Select버튼으로 활의 몸통을 Grab한다.
-// 2. Select버튼이 눌러진 상태의 Grab의 반대 컨트롤러의 Active버튼이 눌러진다면
-//      활시위의 WB.StringCenter transform이 해당 컨트롤러로 움직일 수 있게 된다..
-// 3. 이때 Active가 눌러진 컨트롤러가 움직이면 활시위가 움직인다.
+    // 추가사항
+    4. Socket Interaction을 사용하고 화살에 Grab Interactable을 사용한다.
+
+    [화살 장착 및 발사]
+    0. 화살에 rigidbody추가 및 활과 화살 사이의 충돌 방지.
+    1. 활이 당겨져있을때 화살 또한 같이 움직일 수 있게 움직임 제한 설정.
+    2. Active버튼이 놓아졌을때 화살이 발사함과 동시에 해당 화살의 움직임 또한 제한 풀기.
+    3. 화살이 날아갈 방향은 활 Grab한 컨트롤러의 Forward 방향으로 날리도록 하기. 
+
+    4. (추가?)화살의 궤적이 나타나게 해서 궤적을 보여준다. or 화살의 탄착지점을 보여준다.
+
+
+
+*/
 
 
 public class BowController : MonoBehaviour
@@ -16,12 +31,21 @@ public class BowController : MonoBehaviour
     [SerializeField] private Transform stringCenterTransform;
     [SerializeField] private Transform stringStartPos;
 
+    [Header("화살 세팅")]
+    [SerializeField] private GameObject arrowPrefab;
+    [SerializeField] private Transform arrowSpawnPoint;
+
+    [Header("컨트롤러 세팅")]
     [SerializeField] private XRBaseController leftController;
     [SerializeField] private XRBaseController rightController;
 
     private XRBaseController pullingController;
     private bool bIsHandleGrabbed = false;
     private bool bIsStringPulled = false;
+    private float pullDistance = 0f;
+    private float maxPullDistance = 0.5f;
+
+    private GameObject currentArrow;
 
     void Start()
     {
@@ -41,14 +65,30 @@ public class BowController : MonoBehaviour
         bIsHandleGrabbed = false;
         pullingController = null;
         ResetBowString();
+
+        // 활을 놓았을 때 생성된 화살 제거
+        DestroyArrow();
     }
 
     void Update()
     {
         if (bIsHandleGrabbed)
         {
+            // 현재 화살이 존재 안하면 생성.
+            if (currentArrow == null && bIsStringPulled)
+            {
+                CreateArrow();
+            }
+
             // 한 손으로 활을 잡고 있을 때만 Active 버튼 감지
             CheckActiveButton();
+
+            // 화살이 생성되어 있으면 활시위가 당겨질 때
+            // 화살도 함께 움직이도록 처리
+            if (currentArrow != null && bIsStringPulled)
+            {
+                MoveArrowWithString();
+            }
         }
     }
 
@@ -79,7 +119,7 @@ public class BowController : MonoBehaviour
         // Active 버튼을 놓으면 활시위를 원래 위치로 되돌림
         else if (pullingController != null && !pullingController.activateInteractionState.active)
         {
-            ResetBowString();
+            FireArrow();
         }
     }
 
@@ -89,6 +129,20 @@ public class BowController : MonoBehaviour
         // 활시위(WB.StringCenter)의 위치를 컨트롤러의 위치로 이동
         stringCenterTransform.position = controller.transform.position;
         stringCenterTransform.rotation = controller.transform.rotation;
+
+        // 활시위 당긴 거리 계산
+        pullDistance = Vector3.Distance(stringCenterTransform.position, stringStartPos.position);
+        //Debug.Log($"활시위 당김 거리: {pullDistance}");
+    }
+
+    // 활시위와 함께 화살을 이동시키는 함수
+    private void MoveArrowWithString()
+    {
+        if (currentArrow != null)
+        {
+            currentArrow.transform.position = stringCenterTransform.position;
+            currentArrow.transform.rotation = stringCenterTransform.rotation;
+        }
     }
 
     // 활시위를 원래 위치로 되돌리는 함수
@@ -99,6 +153,44 @@ public class BowController : MonoBehaviour
         stringCenterTransform.rotation = stringStartPos.rotation;
         pullingController = null;
         bIsStringPulled = false;
+        pullDistance = 0f;
+    }
+
+    private void CreateArrow()
+    {
+        if (currentArrow == null)
+        {
+            currentArrow = Instantiate(arrowPrefab, arrowSpawnPoint.position, arrowSpawnPoint.rotation);
+        }
+    }
+
+    // 화살 발사 함수
+    private void FireArrow()
+    {
+        if (pullDistance > 0f && currentArrow != null)
+        {
+            Arrow arrow = currentArrow.GetComponent<Arrow>();
+
+            // 활을 당기고 있는 컨트롤러의 forward 방향을 사용
+            Vector3 fireDirection = pullingController.transform.forward;
+
+            // 활시위 당긴 거리에 비례한 힘을 계산
+            float power = Mathf.Clamp(pullDistance / maxPullDistance, -1f, 1f);
+
+            arrow.Fire(arrowSpawnPoint.forward, power);
+            currentArrow = null;
+        }
+
+        ResetBowString();
+    }
+
+    private void DestroyArrow()
+    {
+        if (currentArrow != null)
+        {
+            currentArrow = null;
+            Destroy(currentArrow);
+        }
     }
 }
 
