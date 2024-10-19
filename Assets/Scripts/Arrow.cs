@@ -29,11 +29,14 @@ public class Arrow : MonoBehaviour
         if (isFired) return;
 
         rb.isKinematic = false;
-        rb.useGravity = true;
+        rb.useGravity = false;  // 발사 후 잠시 동안은 중력의 영향을 무시하게함.
         float speed = Mathf.Lerp(5f, 25f, Mathf.Abs(power));
         
         // 방향에 따라 속도 설정 (Sign으로 방향설정.)
         rb.velocity = direction * speed * Mathf.Sign(power);
+
+        rb.drag = 0.05f;
+        rb.angularDrag = 0.01f;
 
         isFired = true;
 
@@ -44,6 +47,8 @@ public class Arrow : MonoBehaviour
 
         // 화살이 발사되었을 때 회전 보정 코루틴 실행
         StartCoroutine(AlignArrowRotation());
+        // 일정 시간 후 중력 적용
+        StartCoroutine(ApplyGravityAfterDelay(0.2f));
 
         Destroy(gameObject, 5f);
     }
@@ -65,11 +70,18 @@ public class Arrow : MonoBehaviour
         }
     }
 
+    private IEnumerator ApplyGravityAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        rb.useGravity = true;
+        rb.drag = 0.05f;
+    }
+
     private void OnCollisionEnter(Collision collision)
     {
         Debug.Log($"collision발생 {collision.transform.name}");
-        Debug.Log($" rb.velocity {rb.velocity.magnitude}");
-        Debug.Log($" collision.relativeVelocity {collision.relativeVelocity.magnitude}");
+        //Debug.Log($" rb.velocity {rb.velocity.magnitude}");
+        //Debug.Log($" collision.relativeVelocity {collision.relativeVelocity.magnitude}");
 
         // 총돌 직전의 반대방향의 화살 속도.
         Vector3 oringinVelocity = -collision.relativeVelocity;
