@@ -7,19 +7,27 @@ using UnityEngine.XR.Interaction.Toolkit;
     2. Select버튼이 눌러진 상태의 Grab의 반대 컨트롤러의 Active버튼이 눌러진다면
        활시위의 WB.StringCenter transform이 해당 컨트롤러로 움직일 수 있게 된다..
     3. 이때 Active가 눌러진 컨트롤러가 움직이면 활시위가 움직인다.
+    4. 활 시위, 화살 날아가는 소리 Sound 장착.
 
-    // 추가사항
+    // 추가예정
     4. Socket Interaction을 사용하고 화살에 Grab Interactable을 사용한다.
+    5. 
 
     [화살 장착 및 발사]
     0. 화살에 rigidbody추가 및 활과 화살 사이의 충돌 방지.
     1. 활이 당겨져있을때 화살 또한 같이 움직일 수 있게 움직임 제한 설정.
     2. Active버튼이 놓아졌을때 화살이 발사함과 동시에 해당 화살의 움직임 또한 제한 풀기.
     3. 화살이 날아갈 방향은 활 Grab한 컨트롤러의 Forward 방향으로 날리도록 하기. 
+    4. 화살의 궤적이 나타나게 해서 궤적을 보여준다.
+    5. 화살의 발사시 화살촉으로 중력을 적용하여 포물선으로 움직이게 조정.
 
     // 추가사항
-    4. 화살의 궤적이 나타나게 해서 궤적을 보여준다. or 화살의 탄착지점을 보여준다.
-    5. 화살의 발사시 중력을 적용하여 포물선으로 움직이게 조정.
+    6. 화살의 탄착지점을 보여준다.
+    
+    [환경적 요소]
+    0. 난이도 조절용.
+    1. 바람의 세기로 인하여 화살의 궤적이 영향을 받도록 기능 구현하기.
+    
 
 */
 
@@ -38,6 +46,13 @@ public class BowController : MonoBehaviour
     [Header("컨트롤러 세팅")]
     [SerializeField] private XRBaseController leftController;
     [SerializeField] private XRBaseController rightController;
+
+    [Header("Audio Settings")]
+    [SerializeField] private AudioSource bowAudioSource;
+    [SerializeField] private AudioClip stringPullSound;
+    [SerializeField] private AudioClip arrowReleaseSound;
+    private bool hasPlayedSound = false;
+    private float soundTriggerDistance = 0.1f;
 
     private XRBaseController pullingController;
     private bool bIsHandleGrabbed = false;
@@ -66,7 +81,7 @@ public class BowController : MonoBehaviour
         pullingController = null;
         ResetBowString();
 
-        // 활을 놓았을 때 생성된 화살 제거
+        
         DestroyArrow();
     }
 
@@ -89,6 +104,37 @@ public class BowController : MonoBehaviour
             {
                 MoveArrowWithString();
             }
+
+            // 활 시위가 특정 거리를 넘어서면 한 번만 소리 재생
+            if (pullDistance >= soundTriggerDistance && !hasPlayedSound)
+            {
+                PlayStringPullSound();
+                hasPlayedSound = true;
+            }
+
+            // 시위가 원래 위치로 돌아갔을 때 다시 사운드 재생 가능하게 설정
+            if (pullDistance < soundTriggerDistance && hasPlayedSound)
+            {
+                hasPlayedSound = false;
+            }
+        }
+    }
+
+    private void PlayStringPullSound()
+    {
+        if (bowAudioSource != null && stringPullSound != null)
+        {
+            bowAudioSource.clip = stringPullSound;
+            bowAudioSource.Play();
+        }
+    }
+
+    private void PlayArrowReleaseSound()
+    {
+        if (bowAudioSource != null && arrowReleaseSound != null)
+        {
+            bowAudioSource.clip = arrowReleaseSound;
+            bowAudioSource.Play();
         }
     }
 
@@ -187,6 +233,8 @@ public class BowController : MonoBehaviour
 
             arrow.Fire(arrowSpawnPoint.forward, power);
             currentArrow = null;
+
+            PlayArrowReleaseSound();
         }
 
         ResetBowString();

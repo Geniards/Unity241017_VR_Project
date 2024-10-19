@@ -10,8 +10,6 @@ public class Arrow : MonoBehaviour
 
     // 화살이 충돌시 감속변수
     private bool isColliding = false;
-    //private float stopTime = 0.5f;
-    //private float stopTimer = 0f;
 
     private void Awake()
     {
@@ -44,22 +42,26 @@ public class Arrow : MonoBehaviour
             trailRenderer.enabled = true;
         }
 
+        // 화살이 발사되었을 때 회전 보정 코루틴 실행
+        StartCoroutine(AlignArrowRotation());
+
         Destroy(gameObject, 5f);
     }
 
-    private void FixedUpdate()
+    private IEnumerator AlignArrowRotation()
     {
-        if (isFired)
+        while (isFired)
         {
-            // 화살이 날아갈 때 화살촉이 아래로 향하도록 회전 조정
+            // 화살의 속도 벡터에 기반해 회전 보정
             Vector3 velocity = rb.velocity;
             if (velocity.magnitude > 0.1f)
             {
-                // 현재 속도의 방향을 따라 회전
+                // 현재 속도 방향을 따라 화살의 회전 보정
                 Quaternion targetRotation = Quaternion.LookRotation(velocity);
-                // 자연스럽게 회전
-                rb.MoveRotation(Quaternion.Lerp(rb.rotation, targetRotation, Time.fixedDeltaTime * 2f));
+                rb.MoveRotation(Quaternion.Lerp(rb.rotation, targetRotation, Time.fixedDeltaTime * 5f)); // 회전 보정 속도 설정
             }
+
+            yield return null;
         }
     }
 
@@ -83,29 +85,12 @@ public class Arrow : MonoBehaviour
         {
             // 충돌 후 조금 더 이동하도록 설정
             isColliding = true;
-            //stopTimer = 0f;
             StartCoroutine(SlowDownAndStop(oringinVelocity));
         }
     }
 
     private IEnumerator SlowDownAndStop(Vector3 oringinVelocity)
     {
-        //Vector3 originalVelocity = rb.velocity;
-
-        // 서서히 속도를 줄이면서 화살을 멈춤
-        //while (stopTimer < stopTime)
-        //{
-        //    stopTimer += Time.deltaTime;
-        //    float lerpFactor = stopTimer / stopTime;
-
-        //    // 속도를 서서히 감소시킴
-        //    transform.Translate(Vector3.forward * moveDistance, Space.Self);
-        //    //Vector3.Lerp(oringinVelocity, Vector3.zero, lerpFactor);
-        //    yield return null;
-
-        //}
-
-
         yield return null;
         // 속도를 서서히 감소시킴
         transform.Translate(Vector3.forward * moveDistance, Space.Self);
