@@ -150,7 +150,6 @@ public class BowController : MonoBehaviour
     {
         // 활을 잡고 있는 컨트롤러 반환
         var grabbingController = bowHandle.interactorsSelecting[0] as XRBaseControllerInteractor;
-        Debug.Log($"grabbingController {grabbingController}");
 
         // 왼손으로 활을 잡고
         // 오른손의 Active 버튼이 눌렸다면 활시위를 움직임

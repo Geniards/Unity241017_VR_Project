@@ -9,8 +9,6 @@ public class ModeButton : XRPushButton
     [SerializeField] private GameManager.GameMode modeToActivate;
     [SerializeField] private ModeButton[] otherModeButtons;
 
-    private bool bIsActive = false;
-
     protected override void Start()
     {
         base.Start();

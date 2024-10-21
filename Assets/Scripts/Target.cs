@@ -1,12 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class Target : MonoBehaviour
 {
+    [Header("Target Center Transform")]
     [SerializeField] private Transform targetCenter;
 
     // 이펙트 프리펩들 (점수에 따른 이펙트)
+    [Header("Effect Prefabs")]
     [SerializeField] private GameObject impactEffect10;
     [SerializeField] private GameObject impactEffect8;
     [SerializeField] private GameObject impactEffect5;
@@ -32,7 +35,7 @@ public class Target : MonoBehaviour
 
         PlayImpactEffect(score, hitPoint);
 
-        GameManager.Instance.HitProcess(score);
+        GameManager.Instance.HitProcess(score, hitPoint);
 
         //Debug.Log($"충돌체는 {collision.transform.name}");
         //Debug.Log($"충돌체와 중심과의 거리는 {distanceFromCenter}");

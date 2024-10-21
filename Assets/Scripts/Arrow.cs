@@ -99,11 +99,11 @@ public class Arrow : MonoBehaviour
             StartCoroutine(SlowDownAndStop(oringinVelocity));
         }
 
-        //// 과녁을 제외한 곳에 부딪히면 점수를 0점으로 처리한다.
-        //if(collision.transform.name != "Target Transform" && GameManager.Instance.currentMode == GameManager.GameMode.SingleMode)
-        //{
-        //    GameManager.Instance.HitProcess(0);
-        //}
+        // 과녁을 제외한 곳에 부딪히면 점수를 0점으로 처리한다.
+        if (collision.transform.name != "Target Transform" && GameManager.Instance.currentMode == GameManager.GameMode.SingleMode)
+        {
+            GameManager.Instance.HitProcess(0, collision.GetContact(0).point);
+        }
     }
 
     private IEnumerator SlowDownAndStop(Vector3 oringinVelocity)

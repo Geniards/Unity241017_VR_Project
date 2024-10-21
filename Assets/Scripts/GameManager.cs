@@ -9,10 +9,13 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
 
     [SerializeField] private TextMeshPro[] playerScoreTexts;
+    [SerializeField] private TextMeshPro currentModeText;
     [SerializeField] private int totalRounds = 5;
 
     public enum GameMode { FreeMode, SingleMode, GAMEMODE_MAX }
     public GameMode currentMode;
+
+    [SerializeField] private GameObject scorePopupPrefab;
 
     private int currentRound = 0;
     private int totalScore = 0;
@@ -35,9 +38,15 @@ public class GameManager : MonoBehaviour
         ResetScoreUI();
     }
 
-    public void HitProcess(int score)
+    public void HitProcess(int score, Vector3 hitPosition)
     {
-        if(currentMode == GameMode.SingleMode && currentRound < totalRounds)
+        // 점수 팝업 텍스트 프리팹을 타격된 위치에 인스턴스화
+        GameObject scorePopup = Instantiate(scorePopupPrefab);
+        ScorePopUpText scorePopupText = scorePopup.GetComponent<ScorePopUpText>();
+        scorePopupText.ShowScore(score, hitPosition);
+
+        // 싱글모드에서 5턴 점수 반영
+        if (currentMode == GameMode.SingleMode && currentRound < totalRounds)
         {
             playerScoreTexts[currentRound].text = score.ToString();
             totalScore += score;
@@ -46,12 +55,11 @@ public class GameManager : MonoBehaviour
             currentRound++;
         }
 
+        // 5턴 종료시
         if (currentMode == GameMode.SingleMode && currentRound >= totalRounds)
         {
             EndGame();
         }
-
-
     }
 
     private void EndGame()
@@ -80,6 +88,7 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log($"게임모드 해제: " + currentMode);
         currentMode = mode;
+        currentModeText.text = currentMode.ToString();
         Debug.Log("게임 모드 설정: " + mode);
     }
 }
