@@ -6,6 +6,12 @@ public class Target : MonoBehaviour
 {
     [SerializeField] private Transform targetCenter;
 
+    // 이펙트 프리펩들 (점수에 따른 이펙트)
+    [SerializeField] private GameObject impactEffect10;
+    [SerializeField] private GameObject impactEffect8;
+    [SerializeField] private GameObject impactEffect5;
+    [SerializeField] private GameObject impactEffect2;
+
     // 점수 구간 설정
     private float ring1Radius = 0.05f;  // 10점 영역
     private float ring2Radius = 0.15f;  // 8점 영역
@@ -15,8 +21,8 @@ public class Target : MonoBehaviour
     private void OnCollisionEnter(Collision collision)
     {
         // 화살의 충돌 지점
-        Vector3 hitPoint = new Vector3(collision.GetContact(0).point.x, collision.GetContact(0).point.y, 0);
-        Vector3 centerPoint = new Vector3(targetCenter.position.x, targetCenter.position.y, 0);
+        Vector3 hitPoint = collision.GetContact(0).point;
+        Vector3 centerPoint = new Vector3(targetCenter.position.x, targetCenter.position.y, collision.GetContact(0).point.z);
         // 과녁 중심과 화살이 맞은 지점 간의 거리
         float distanceFromCenter = Vector3.Distance(hitPoint, centerPoint);
 
@@ -24,10 +30,12 @@ public class Target : MonoBehaviour
         int score = CalculateScore(distanceFromCenter);
         Debug.Log($"Hit Point: {hitPoint}, Score: {score}");
 
-        Debug.Log($"충돌체는 {collision.transform.name}");
-        Debug.Log($"충돌체와 중심과의 거리는 {distanceFromCenter}");
+        PlayImpactEffect(score, hitPoint);
 
+        GameManager.Instance.HitProcess(score);
 
+        //Debug.Log($"충돌체는 {collision.transform.name}");
+        //Debug.Log($"충돌체와 중심과의 거리는 {distanceFromCenter}");
     }
 
     private int CalculateScore(float distance)
@@ -52,6 +60,44 @@ public class Target : MonoBehaviour
         else
         {
             return 0;   // 과녁을 벗어남
+        }
+    }
+
+    private void PlayImpactEffect(int score, Vector3 hitPoint)
+    {
+        GameObject effectPrefab = null;
+
+        if (score == 10)
+        {
+            effectPrefab = impactEffect10;
+        }
+        else if (score == 8)
+        {
+            effectPrefab = impactEffect8;
+        }
+        else if (score == 5)
+        {
+            effectPrefab = impactEffect5;
+        }
+        else if (score == 2)
+        {
+            effectPrefab = impactEffect2;
+        }
+
+        if (effectPrefab != null)
+        {
+            // 카메라의 방향을 참조해서 이펙트 회전
+            Camera mainCamera = Camera.main;
+
+            if (mainCamera != null)
+            {
+                Vector3 directionToCamera = (mainCamera.transform.position - hitPoint).normalized;
+
+                Quaternion effectRotation = Quaternion.LookRotation(directionToCamera);
+
+                Instantiate(effectPrefab, hitPoint, effectRotation);
+                Debug.Log("이펙트 발생");
+            }
         }
     }
 }
