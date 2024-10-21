@@ -11,6 +11,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TextMeshPro[] playerScoreTexts;
     [SerializeField] private int totalRounds = 5;
 
+    public enum GameMode { FreeMode, SingleMode, GAMEMODE_MAX }
+    public GameMode currentMode;
+
     private int currentRound = 0;
     private int totalScore = 0;
 
@@ -34,7 +37,7 @@ public class GameManager : MonoBehaviour
 
     public void HitProcess(int score)
     {
-        if(currentRound < totalRounds)
+        if(currentMode == GameMode.SingleMode && currentRound < totalRounds)
         {
             playerScoreTexts[currentRound].text = score.ToString();
             totalScore += score;
@@ -43,10 +46,12 @@ public class GameManager : MonoBehaviour
             currentRound++;
         }
 
-        if (currentRound >= totalRounds)
+        if (currentMode == GameMode.SingleMode && currentRound >= totalRounds)
         {
             EndGame();
         }
+
+
     }
 
     private void EndGame()
@@ -64,5 +69,17 @@ public class GameManager : MonoBehaviour
         {
             score.text = "-";
         }
+    }
+
+    public void ResetGame()
+    {
+        ResetScoreUI();
+    }
+
+    public void SetGameMode(GameMode mode)
+    {
+        Debug.Log($"게임모드 해제: " + currentMode);
+        currentMode = mode;
+        Debug.Log("게임 모드 설정: " + mode);
     }
 }

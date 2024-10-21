@@ -92,13 +92,18 @@ public class Arrow : MonoBehaviour
         transform.forward = oringinVelocity;
         transform.parent = collision.transform;
 
-
         if (!isColliding)
         {
             // 충돌 후 조금 더 이동하도록 설정
             isColliding = true;
             StartCoroutine(SlowDownAndStop(oringinVelocity));
         }
+
+        //// 과녁을 제외한 곳에 부딪히면 점수를 0점으로 처리한다.
+        //if(collision.transform.name != "Target Transform" && GameManager.Instance.currentMode == GameManager.GameMode.SingleMode)
+        //{
+        //    GameManager.Instance.HitProcess(0);
+        //}
     }
 
     private IEnumerator SlowDownAndStop(Vector3 oringinVelocity)

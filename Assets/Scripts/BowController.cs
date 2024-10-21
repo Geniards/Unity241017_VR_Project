@@ -30,7 +30,7 @@ using UnityEngine.XR.Interaction.Toolkit;
     2. 해당 타격지점 HitPoint에 대하여 이펙트를 추가하여 타격시 해당 지점에서 이펙트가 발생하도록 한다.
     3. 점수UI를 생성하여 과녁에 타격시에 해당 점수를 표시.
     4. GameManager를 생성하여 모드를 구분.(싱글 모드 : 5발 쏘아서 기록재기, 자유모드 : 마음대로 연습하는 모드) 
-
+    5. Mode UI생성 및 버튼 프리펩을 이용하여 Poke Interactor로 동작하게 하기.(XR_StartAsset의 XRPushButton스크립트 활용)
 
     [환경적 요소]
     0. 난이도 조절용.
