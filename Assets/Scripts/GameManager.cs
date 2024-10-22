@@ -51,7 +51,7 @@ public class GameManager : MonoBehaviour
     {
         // 바람의 방향을 랜덤하게 설정
         windDirection = new Vector3(Random.Range(-1f, 1f), 0, Random.Range(-1f, 1f)).normalized;
-        windStrength = Random.Range(10, 50);
+        windStrength = Random.Range(0, 5);
     }
 
     public void UpdateWindArrow()
@@ -60,17 +60,26 @@ public class GameManager : MonoBehaviour
         if (windArrowTransform != null)
         {
             Quaternion windRotation = Quaternion.LookRotation(windDirection);
-            windArrowTransform.rotation = Quaternion.Euler(0, windRotation.eulerAngles.y, 0);
+            windArrowTransform.rotation = Quaternion.Euler(0, windRotation.eulerAngles.y+180, 0);
         }
         currentWindPower.text = "바람의 세기 : " + windStrength.ToString();
     }
 
-    public void HitProcess(int score, Vector3 hitPosition)
+    public void PopUpScore(int score, Vector3 hitPosition)
     {
         // 점수 팝업 텍스트 프리팹을 타격된 위치에 인스턴스화
         GameObject scorePopup = Instantiate(scorePopupPrefab);
         ScorePopUpText scorePopupText = scorePopup.GetComponent<ScorePopUpText>();
         scorePopupText.ShowScore(score, hitPosition);
+    }
+
+    public void HitProcess(int score, Vector3 hitPosition)
+    {
+        // 점수 팝업
+        PopUpScore(score, hitPosition);
+
+        // 화살이 충돌 후 바람의 방향도 변경.
+        UpdateWindArrow();
 
         // 싱글모드에서 5턴 점수 반영
         if (currentMode == GameMode.SingleMode && currentRound < totalRounds)

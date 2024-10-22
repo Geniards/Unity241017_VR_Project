@@ -30,7 +30,7 @@ public class Arrow : MonoBehaviour
         {
             // 바람의 힘을 적용
             Vector3 windForce = GameManager.Instance.windDirection * GameManager.Instance.windStrength;
-            rb.AddForce(windForce * Time.fixedDeltaTime, ForceMode.Force);
+            rb.AddForce(windForce, ForceMode.Force);
         }
     }
 
@@ -61,9 +61,6 @@ public class Arrow : MonoBehaviour
         StartCoroutine(ApplyGravityAfterDelay(0.2f));
 
         Destroy(gameObject, 5f);
-
-        // 쏘고 화살이 사라지면 바람의 방향도 변경.
-        GameManager.Instance.UpdateWindArrow();
     }
 
     private IEnumerator AlignArrowRotation()
@@ -87,15 +84,11 @@ public class Arrow : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
         rb.useGravity = true;
-        rb.drag = 0.1f;
+        rb.drag = 0.2f;
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        Debug.Log($"collision발생 {collision.transform.name}");
-        //Debug.Log($" rb.velocity {rb.velocity.magnitude}");
-        //Debug.Log($" collision.relativeVelocity {collision.relativeVelocity.magnitude}");
-
         // 총돌 직전의 반대방향의 화살 속도.
         Vector3 oringinVelocity = -collision.relativeVelocity;
 
@@ -113,7 +106,7 @@ public class Arrow : MonoBehaviour
         }
 
         // 과녁을 제외한 곳에 부딪히면 점수를 0점으로 처리한다.
-        if (collision.transform.name != "Target Transform" && GameManager.Instance.currentMode == GameManager.GameMode.SingleMode)
+        if (collision.transform.name != "Target Transform")
         {
             GameManager.Instance.HitProcess(0, collision.GetContact(0).point);
         }

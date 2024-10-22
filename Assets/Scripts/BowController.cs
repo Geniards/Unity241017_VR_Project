@@ -36,6 +36,8 @@ using UnityEngine.XR.Interaction.Toolkit;
     [환경적 요소]
     0. 난이도 조절용.
     1. 바람의 세기로 인하여 화살의 궤적이 영향을 받도록 기능 구현하기.
+        (Fixed Update를 통하여 화살에 바람의 세기 전달.)
+    2. 나머지 코드 정리 및 추후 추가할 사항 정리하기.
     
 
 */
