@@ -31,14 +31,10 @@ public class Target : MonoBehaviour
 
         // 점수 계산
         int score = CalculateScore(distanceFromCenter);
-        Debug.Log($"Hit Point: {hitPoint}, Score: {score}");
 
         PlayImpactEffect(score, hitPoint);
 
         GameManager.Instance.HitProcess(score, hitPoint);
-
-        //Debug.Log($"충돌체는 {collision.transform.name}");
-        //Debug.Log($"충돌체와 중심과의 거리는 {distanceFromCenter}");
     }
 
     private int CalculateScore(float distance)
@@ -99,7 +95,6 @@ public class Target : MonoBehaviour
                 Quaternion effectRotation = Quaternion.LookRotation(directionToCamera);
 
                 Instantiate(effectPrefab, hitPoint, effectRotation);
-                Debug.Log("이펙트 발생");
             }
         }
     }

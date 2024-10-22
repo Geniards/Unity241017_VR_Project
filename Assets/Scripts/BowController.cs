@@ -194,7 +194,6 @@ public class BowController : MonoBehaviour
 
         // 활시위 당긴 거리 계산
         pullDistance = Vector3.Distance(stringCenterTransform.position, stringStartPos.position);
-        //Debug.Log($"활시위 당김 거리: {pullDistance}");
     }
 
     // 활시위와 함께 화살을 이동시키는 함수
