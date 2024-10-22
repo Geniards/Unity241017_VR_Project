@@ -24,13 +24,23 @@ public class Arrow : MonoBehaviour
         }
     }
 
+    private void FixedUpdate()
+    {
+        if (isFired)
+        {
+            // 바람의 힘을 적용
+            Vector3 windForce = GameManager.Instance.windDirection * GameManager.Instance.windStrength;
+            rb.AddForce(windForce * Time.fixedDeltaTime, ForceMode.Force);
+        }
+    }
+
     public void Fire(Vector3 direction, float power)
     {
         if (isFired) return;
 
         rb.isKinematic = false;
         rb.useGravity = false;  // 발사 후 잠시 동안은 중력의 영향을 무시하게함.
-        float speed = Mathf.Lerp(5f, 25f, Mathf.Abs(power));
+        float speed = Mathf.Lerp(2f, 20f, Mathf.Abs(power));
         
         // 방향에 따라 속도 설정 (Sign으로 방향설정.)
         rb.velocity = direction * speed * Mathf.Sign(power);
@@ -51,6 +61,9 @@ public class Arrow : MonoBehaviour
         StartCoroutine(ApplyGravityAfterDelay(0.2f));
 
         Destroy(gameObject, 5f);
+
+        // 쏘고 화살이 사라지면 바람의 방향도 변경.
+        GameManager.Instance.UpdateWindArrow();
     }
 
     private IEnumerator AlignArrowRotation()
@@ -74,7 +87,7 @@ public class Arrow : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
         rb.useGravity = true;
-        rb.drag = 0.05f;
+        rb.drag = 0.1f;
     }
 
     private void OnCollisionEnter(Collision collision)

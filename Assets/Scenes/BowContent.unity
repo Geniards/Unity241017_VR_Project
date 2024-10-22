@@ -733,7 +733,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
-  m_AdditionalShaderChannelsFlag: 0
+  m_AdditionalShaderChannelsFlag: 25
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
@@ -6342,7 +6342,7 @@ MonoBehaviour:
   currentModeText: {fileID: 448700902}
   totalRounds: 5
   currentMode: 0
-  scorePopupPrefab: {fileID: 6079080437141443155, guid: 51286edb6d093c74b8e862ee8f049763, type: 3}
+  scorePopupPrefab: {fileID: 5582511911568385848, guid: c8f2c8a3ee82bd645ab733941f42f717, type: 3}
 --- !u!1 &1459938121
 GameObject:
   m_ObjectHideFlags: 0

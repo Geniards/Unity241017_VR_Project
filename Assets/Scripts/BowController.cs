@@ -31,6 +31,7 @@ using UnityEngine.XR.Interaction.Toolkit;
     3. 점수UI를 생성하여 과녁에 타격시에 해당 점수를 표시.
     4. GameManager를 생성하여 모드를 구분.(싱글 모드 : 5발 쏘아서 기록재기, 자유모드 : 마음대로 연습하는 모드) 
     5. Mode UI생성 및 버튼 프리펩을 이용하여 Poke Interactor로 동작하게 하기.(XR_StartAsset의 XRPushButton스크립트 활용)
+    6. 화살이 충돌시 해당 점수를 보여주는 ScorePopUp UI 생성.(TextMeshPro를 사용하여 해당 지점에서 천천히 올라가다가 사라지게 표현.)
 
     [환경적 요소]
     0. 난이도 조절용.

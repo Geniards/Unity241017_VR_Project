@@ -8,17 +8,25 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
-    [SerializeField] private TextMeshPro[] playerScoreTexts;
-    [SerializeField] private TextMeshPro currentModeText;
+    [Header("점수 UI 세팅")]
+    [SerializeField] private TextMeshProUGUI[] playerScoreTexts;
+    [SerializeField] private TextMeshProUGUI currentModeText;
     [SerializeField] private int totalRounds = 5;
 
     public enum GameMode { FreeMode, SingleMode, GAMEMODE_MAX }
     public GameMode currentMode;
 
+    [Header("팝업 점수 UI 세팅")]
     [SerializeField] private GameObject scorePopupPrefab;
 
     private int currentRound = 0;
     private int totalScore = 0;
+
+    [Header("Wind Settings")]
+    public Vector3 windDirection;
+    public float windStrength;
+    [SerializeField] private Transform windArrowTransform;
+    [SerializeField] private TextMeshProUGUI currentWindPower;
 
     private void Awake()
     {
@@ -36,6 +44,25 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         ResetScoreUI();
+        UpdateWindArrow();
+    }
+
+    private void SetRandomWind()
+    {
+        // 바람의 방향을 랜덤하게 설정
+        windDirection = new Vector3(Random.Range(-1f, 1f), 0, Random.Range(-1f, 1f)).normalized;
+        windStrength = Random.Range(10, 50);
+    }
+
+    public void UpdateWindArrow()
+    {
+        SetRandomWind();
+        if (windArrowTransform != null)
+        {
+            Quaternion windRotation = Quaternion.LookRotation(windDirection);
+            windArrowTransform.rotation = Quaternion.Euler(0, windRotation.eulerAngles.y, 0);
+        }
+        currentWindPower.text = "바람의 세기 : " + windStrength.ToString();
     }
 
     public void HitProcess(int score, Vector3 hitPosition)
